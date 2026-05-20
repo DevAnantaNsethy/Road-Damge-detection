@@ -42,7 +42,7 @@ st.markdown("""
 
 # Title Section
 st.markdown(
-    '<p class="title">🚧 Road Damage Detection System</p>',
+    '<p class="title"> Road Damage Detection System</p>',
     unsafe_allow_html=True
 )
 
@@ -66,6 +66,7 @@ with st.sidebar:
     - Severity analysis
     - Real-time AI inference
     - AI-powered road condition monitoring
+    - Camera-based live image capture
     """)
 
     st.success("Model: YOLOv8")
@@ -77,43 +78,52 @@ with st.sidebar:
 
     st.markdown("""
     ### 1. Ananta Narayan Sethy
-    - GitHub: https://github.com/
-    - LinkedIn: https://linkedin.com/
+    - GitHub: https://github.com/DevAnantaNsethy
+    - LinkedIn: https://www.linkedin.com/in/ananta-narayan-sethy-46403a24b/
 
     ### 2. Biplab Nayak
-    - GitHub: https://github.com/
+    - GitHub: https://www.linkedin.com/in/biplab-nayak-a21525378/
     - LinkedIn: https://linkedin.com/
 
     ### 3. Sourav Choudhuri
     - GitHub: https://github.com/
-    - LinkedIn: https://linkedin.com/
+    - LinkedIn: https://www.linkedin.com/in/sourav-choudhuri-52bb48299/
 
     ### 4. Lokanath Pahan
     - GitHub: https://github.com/
-    - LinkedIn: https://linkedin.com/
+    - LinkedIn: https://www.linkedin.com/in/lokanath-pahan-91542929b/
     """)
 
-# File Upload
+# Upload Section
 uploaded_file = st.file_uploader(
     "📤 Upload Road Image",
     type=["jpg", "png", "jpeg"]
 )
 
-# Image Processing
-if uploaded_file:
+# Camera Input
+camera_image = st.camera_input("📷 Capture Road Image")
 
-    image = Image.open(uploaded_file).convert("RGB")
+# Process Uploaded or Captured Image
+if uploaded_file or camera_image:
 
+    # Load Image
+    if uploaded_file:
+        image = Image.open(uploaded_file).convert("RGB")
+
+    else:
+        image = Image.open(camera_image).convert("RGB")
+
+    # Display Original Image
     st.image(
         image,
-        caption="📷 Uploaded Image",
+        caption="Input Image",
         use_container_width=True
     )
 
     img_array = np.array(image)
 
     # Analyze Button
-    if st.button("🔍 Analyze Road Condition"):
+    if st.button(" Analyze Road Condition"):
 
         with st.spinner("Analyzing image..."):
 
@@ -125,13 +135,13 @@ if uploaded_file:
         # Detection Result
         st.image(
             result_img,
-            caption="🧠 Detection Result",
+            caption="Detection Result",
             use_container_width=True
         )
 
         st.write("---")
 
-        st.subheader("📊 Detection Summary")
+        st.subheader("Detection Summary")
 
         damage_count = 0
         confidences = []
@@ -148,7 +158,7 @@ if uploaded_file:
         # Smart Summary
         if damage_count == 0:
 
-            st.success("🛣️ Road Condition: GOOD (No damage detected)")
+            st.success("Road Condition: GOOD (No damage detected)")
 
         else:
 
@@ -178,7 +188,7 @@ if uploaded_file:
 st.markdown(
     """
     <div class="footer">
-        Developed by Team Road Damage Detection 🚀
+        Developed by Team Road Damage Detection 
     </div>
     """,
     unsafe_allow_html=True
