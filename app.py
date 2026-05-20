@@ -1,152 +1,238 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
+import time
 from detector import detect_damage, model
 
 # Page Configuration
 st.set_page_config(
-    page_title="Road Damage Detection",
-    layout="centered"
+    page_title="Road Damage Detection AI",
+    page_icon="🚧",
+    layout="wide"
 )
 
 # Custom Styling
 st.markdown("""
-    <style>
-    .main {
-        background-color: #0e1117;
-        color: white;
-    }
+<style>
 
-    .title {
-        text-align: center;
-        font-size: 42px;
-        font-weight: bold;
-        color: white;
-    }
+html, body, [class*="css"] {
+    font-family: 'Poppins', sans-serif;
+}
 
-    .subtitle {
-        text-align: center;
-        font-size: 18px;
-        color: gray;
-        margin-bottom: 20px;
-    }
+.main {
+    background: linear-gradient(to bottom right, #0f172a, #111827);
+    color: white;
+}
 
-    .footer {
-        text-align: center;
-        color: gray;
-        font-size: 14px;
-        margin-top: 40px;
-    }
-    </style>
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.title {
+    text-align: center;
+    font-size: 52px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 20px;
+    color: #94a3b8;
+    margin-bottom: 35px;
+}
+
+.upload-box {
+    background-color: #1e293b;
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid #334155;
+}
+
+.result-box {
+    background-color: #111827;
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid #334155;
+}
+
+.metric-card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 16px;
+    text-align: center;
+    border: 1px solid #334155;
+}
+
+.footer {
+    text-align: center;
+    color: #94a3b8;
+    padding-top: 40px;
+    font-size: 15px;
+}
+
+.sidebar-title {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+</style>
 """, unsafe_allow_html=True)
 
-# Title Section
+# Title
 st.markdown(
-    '<p class="title"> Road Damage Detection System</p>',
+    '<div class="title">🚧 Road Damage Detection System</div>',
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<p class="subtitle">AI-powered road damage analysis using YOLOv8</p>',
+    '<div class="subtitle">AI-powered Road Damage Analysis using YOLOv8</div>',
     unsafe_allow_html=True
 )
-
-st.write("---")
 
 # Sidebar
 with st.sidebar:
 
-    st.header("📌 About Project")
+    st.markdown("## 📌 About Project")
 
     st.write("""
-    Automated Road Damage Detection System using Deep Learning and YOLOv8.
+    This AI system detects road damages using Deep Learning and YOLOv8.
 
     ### Features
-    - Detects road damages
+    - Upload road images
+    - Capture image using camera
+    - Real-time damage detection
     - Severity analysis
-    - Real-time AI inference
-    - AI-powered road condition monitoring
-    - Camera-based live image capture
+    - Smart AI inference
     """)
 
-    st.success("Model: YOLOv8")
-    st.info("Framework: Streamlit")
+    st.success("🚀 Model: YOLOv8")
+    st.info("💻 Framework: Streamlit")
 
-    st.write("---")
+    st.markdown("---")
 
-    st.header("👨‍💻 Team Members")
+    st.markdown("## 👨‍💻 Team Members")
 
     st.markdown("""
     ### 1. Ananta Narayan Sethy
-    - GitHub: https://github.com/DevAnantaNsethy
-    - LinkedIn: https://www.linkedin.com/in/ananta-narayan-sethy-46403a24b/
+    🔗 GitHub:  
+    https://github.com/DevAnantaNsethy
+
+    💼 LinkedIn:  
+    https://www.linkedin.com/in/ananta-narayan-sethy-46403a24b/
+
+    ---
 
     ### 2. Biplab Nayak
-    - GitHub: https://www.linkedin.com/in/biplab-nayak-a21525378/
-    - LinkedIn: https://linkedin.com/
+    💼 LinkedIn:  
+    https://www.linkedin.com/in/biplab-nayak-a21525378/
+
+    ---
 
     ### 3. Sourav Choudhuri
-    - GitHub: https://github.com/
-    - LinkedIn: https://www.linkedin.com/in/sourav-choudhuri-52bb48299/
+    💼 LinkedIn:  
+    https://www.linkedin.com/in/sourav-choudhuri-52bb48299/
+
+    ---
 
     ### 4. Lokanath Pahan
-    - GitHub: https://github.com/
-    - LinkedIn: https://www.linkedin.com/in/lokanath-pahan-91542929b/
+    💼 LinkedIn:  
+    https://www.linkedin.com/in/lokanath-pahan-91542929b/
     """)
 
-# Upload Section
-uploaded_file = st.file_uploader(
-    "📤 Upload Road Image",
-    type=["jpg", "png", "jpeg"]
+# Main UI
+st.markdown("---")
+
+# Input Selection
+input_option = st.radio(
+    "📥 Choose Input Method",
+    ["📤 Upload Image", "📷 Use Camera"],
+    horizontal=True
 )
 
-# Camera Input
-camera_image = st.camera_input("📷 Capture Road Image")
+uploaded_image = None
 
-# Process Uploaded or Captured Image
-if uploaded_file or camera_image:
+# Upload Option
+if input_option == "📤 Upload Image":
 
-    # Load Image
+    uploaded_file = st.file_uploader(
+        "Upload a road image",
+        type=["jpg", "jpeg", "png"]
+    )
+
     if uploaded_file:
-        image = Image.open(uploaded_file).convert("RGB")
+        uploaded_image = Image.open(uploaded_file).convert("RGB")
 
-    else:
-        image = Image.open(camera_image).convert("RGB")
+# Camera Option
+else:
 
-    # Display Original Image
+    camera_photo = st.camera_input("Capture Road Image")
+
+    if camera_photo:
+        uploaded_image = Image.open(camera_photo).convert("RGB")
+
+# Image Processing
+if uploaded_image:
+
+    st.markdown("## 📷 Selected Image")
+
+    # Fake loading animation for better UX
+    progress_bar = st.progress(0)
+
+    for percent in range(100):
+        time.sleep(0.01)
+        progress_bar.progress(percent + 1)
+
     st.image(
-        image,
+        uploaded_image,
         caption="Input Image",
         use_container_width=True
     )
 
-    img_array = np.array(image)
+    img_array = np.array(uploaded_image)
 
-    # Analyze Button
-    if st.button(" Analyze Road Condition"):
+    st.markdown("<br>", unsafe_allow_html=True)
 
-        with st.spinner("Analyzing image..."):
+    if st.button("🚀 Analyze Road Condition", use_container_width=True):
+
+        with st.spinner("🧠 AI Model is analyzing the road image..."):
+
+            # Extra loading animation
+            loading_text = st.empty()
+
+            for i in range(3):
+                loading_text.markdown(
+                    f"### 🔍 Detecting damages{'.' * (i+1)}"
+                )
+                time.sleep(0.5)
 
             results = model(img_array)[0]
             result_img = detect_damage(img_array.copy())
 
-        st.success("✅ Analysis Complete")
+            loading_text.empty()
 
-        # Detection Result
+        st.success("✅ Analysis Completed Successfully")
+
+        st.markdown("---")
+
+        # Result Image
+        st.markdown("## 🧠 Detection Result")
+
         st.image(
             result_img,
-            caption="Detection Result",
             use_container_width=True
         )
 
-        st.write("---")
+        st.markdown("---")
 
-        st.subheader("Detection Summary")
+        # Detection Summary
+        st.markdown("## 📊 Detection Summary")
 
         damage_count = 0
         confidences = []
 
-        # Detection Analysis
         for data in results.boxes.data.tolist():
 
             conf = float(data[4])
@@ -155,40 +241,58 @@ if uploaded_file or camera_image:
                 damage_count += 1
                 confidences.append(conf)
 
-        # Smart Summary
+        # Metrics
+        col1, col2, col3 = st.columns(3)
+
         if damage_count == 0:
 
-            st.success("Road Condition: GOOD (No damage detected)")
+            with col1:
+                st.metric("Road Status", "GOOD")
+
+            with col2:
+                st.metric("Damages", "0")
+
+            with col3:
+                st.metric("Severity", "LOW")
+
+            st.success("🛣️ No road damage detected.")
 
         else:
 
             avg_conf = sum(confidences) / len(confidences)
 
-            st.error("⚠️ Road Condition: DAMAGED")
-
-            st.write(f"### Total Damages Detected: {damage_count}")
-            st.write(f"### Average Confidence: {avg_conf:.2f}")
-
-            # Severity Logic
             if damage_count == 1:
-
-                st.info("🟢 Severity Level: LOW")
+                severity = "LOW"
 
             elif damage_count <= 3:
+                severity = "MEDIUM"
 
+            else:
+                severity = "HIGH"
+
+            with col1:
+                st.metric("Road Status", "DAMAGED")
+
+            with col2:
+                st.metric("Damages", damage_count)
+
+            with col3:
+                st.metric("Confidence", f"{avg_conf:.2f}")
+
+            if severity == "LOW":
+                st.info("🟢 Severity Level: LOW")
+
+            elif severity == "MEDIUM":
                 st.warning("🟡 Severity Level: MEDIUM")
 
             else:
-
                 st.error("🔴 Severity Level: HIGH")
-
-        st.write("---")
 
 # Footer
 st.markdown(
     """
     <div class="footer">
-        Developed by Team Road Damage Detection 
+        Developed by Team Road Damage Detection 🚀
     </div>
     """,
     unsafe_allow_html=True
