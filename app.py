@@ -2,7 +2,7 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import time
-from detector import detect_damage, model
+from detector import detect_damage
 
 # Page Configuration
 st.set_page_config(
@@ -208,8 +208,7 @@ if uploaded_image:
                 )
                 time.sleep(0.5)
 
-            results = model(img_array)[0]
-            result_img = detect_damage(img_array.copy())
+            result_img, results = detect_damage(img_array.copy())
 
             loading_text.empty()
 
@@ -232,8 +231,8 @@ if uploaded_image:
 
         damage_count = 0
         confidences = []
-
-        for data in results.boxes.data.tolist():
+if results is not None:
+    for data in results.boxes.data.tolist():
 
             conf = float(data[4])
 
