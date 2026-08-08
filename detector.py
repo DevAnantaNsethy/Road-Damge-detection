@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import cv2
 import os
 
-# Load model safely
+# Load model safely 
 def load_model():
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(BASE_DIR, "best.pt")
@@ -13,7 +13,6 @@ model = load_model()
 
 def detect_damage(image):
     try:
-        # Run inference on CPU
         results = model(image, device="cpu")[0]
 
         flag = False
@@ -48,8 +47,8 @@ def detect_damage(image):
                 3
             )
 
-        return image
+        return image, results  
 
     except Exception as e:
         print("ERROR:", e)
-        return image
+        return image, None
