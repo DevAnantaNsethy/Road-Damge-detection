@@ -22,7 +22,8 @@ AI-powered Road Damage Detection System using YOLOv8 and Streamlit for real-time
 * Streamlit
 * OpenCV
 * NumPy
-* Pillow
+* Matplotlib
+
 
 ---
 
